@@ -78,6 +78,8 @@ class Admin_Account: public Log_in
     public:
             Admin_Account(){display_admin_menu();};
             ~Admin_Account(){};
+	    void show_all_activate_accounts();
+	    void create_new_client();
             void display_admin_menu();
     
 };
@@ -128,11 +130,18 @@ void Log_in:: login()
                 {
                     cout<<endl;
                 }
-                cout<<"not account found"<<endl;
-                //get the space
-                //getline(cin, space);
+                cout<<"Account not found please try again"<<endl;
                 
             }
+	catch( string exit)
+	{
+	 for( int i = 0; i < 1000; i++)
+		{
+		  cout<<endl;
+		}
+	  cout<<"You have been successfully logged out"<<endl;
+	  getline( cin, space);
+	}
         catch(...)//default catch
             {
                 for( int i = 0; i < 1000; i++)
@@ -151,6 +160,7 @@ void Log_in:: login()
 void Log_in:: locate_account( string input_id, string input_password)
 {
     ifstream accounts_file;
+    string exit_account; 
     string current_account_id, current_account_password, current_account_pin;
     int current_account_access_level = 0, no_account_found = 0;
     
@@ -196,19 +206,13 @@ void Log_in:: locate_account( string input_id, string input_password)
             catch( int loggin_out_of_account)
             {
                 cout<<"******Exiting Account Profile*******"<<endl;
-                throw;
+                throw exit_account;
             }
             
         }
-        else
-            {
+	}
                 throw no_account_found;//return value for try catch.
-            }
        
-    }
-    
- 
-    
 }
 void Log_in :: change_alarm_status( string pin)
 {
@@ -268,7 +272,7 @@ void User_Account::display_user_menu()
         cout<<"2: DisAlarm the system"<<endl;
         cout<<"5: To exit the Progarm"<<endl;
         cin>>user_choice;
-        cout<<user_choice<<endl;
+       // cout<<user_choice<<endl;
         
         switch( user_choice )
         {
@@ -286,7 +290,7 @@ void User_Account::display_user_menu()
 		change_alarm_status(account_pin);
 		}
 		else 
-			cout<<"alrm is not active"<<endl;
+			cout<<"alarm is not active"<<endl;
                 break;
             case 5://Logs the Client out
                 throw user_choice;
@@ -312,16 +316,18 @@ void Admin_Account::display_admin_menu()
     do
     {
         cout<<"Select which function you would like to preform"<<endl;
-        cout<<"1: Rest the a Client Pin"<<endl;
+        cout<<"1: See all activate accounts"<<endl;
         cout<<"2: Create a new Client"<<endl;
         cout<<"5: To exit the Progarm"<<endl;
         cin>>user_choice;
         
         switch( user_choice )
         {
-            case 1://Reset a Clients Pin
-                break;
+            case 1://display all activate accounts
+		    show_all_activate_accounts();
+              	  break;
             case 2://Create a new Client Pin
+		create_new_client();
                 break;
             case 5://logs the admin out
                 throw user_choice;
@@ -333,6 +339,56 @@ void Admin_Account::display_admin_menu()
     }while( user_choice != 5);
     
     
+}
+void Admin_Account :: show_all_activate_accounts()
+{
+	string id, password, access_level, pin;
+	ifstream accounts_file;
+	accounts_file.open( ACCOUNTS, ios::in);
+	cout<<"ID   Password    Access level  Pin"<<endl;
+	if( !accounts_file)
+	{
+	 cout<<"error opening a file for reading"<<endl; 
+	}
+	while( !accounts_file.eof())
+	{
+	 accounts_file>>id;
+	 accounts_file>>password;
+	 accounts_file>>access_level;
+	 accounts_file>>pin;
+	 
+	cout<<id<<"    "<<password<<"     "<<access_level<<"      "<<pin<<endl;
+	}
+
+	accounts_file.close();
+
+}
+void Admin_Account :: create_new_client()
+{
+	string id, password, access_level= "5", pin, space;
+
+	getline( cin, space);
+	cout<<"Enter the user_id for the new client: "<<endl;
+	getline( cin, id);
+	cout<<"Enter the password for the account: "<<endl;
+	getline( cin, password); 
+	cout<<"Enter in a pin for the alarm: "<<endl; 
+	getline( cin, pin);
+	
+	ofstream accounts_file;
+	accounts_file.open( ACCOUNTS , ios::app);
+
+	if( !accounts_file)
+	{
+	 cout<<"file did not open"<<endl;
+	}
+	
+	accounts_file<< id <<" "<<password<<" "<<access_level<<" "<<pin<<endl;
+	
+	accounts_file.close();
+	
+
+
 }
 /*
  *********************************************************************************************************
